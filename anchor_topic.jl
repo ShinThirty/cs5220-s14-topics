@@ -8,7 +8,7 @@
 # 
 # This code computes a word-topic matrix using the spectral approach
 # described in an [ICML 2013][1] paper.  The main algorithm has two
-# phases:
+#( phases:
 #
 # 1. In the first phase, we compute "anchor words" associated
 #    with specific topics.
@@ -128,6 +128,34 @@ end
 
 function simplex_nnls_eg(AtA, Atb, x=[], maxiter=500)
   # BEGIN TASK
+  # Parameter specification
+  etat = 1000
+  epsilon = 1e-5
+  # Initialization
+  K = length(Atb)
+  x = ones(K,1) * (1/K)
+  notConverge = true
+  iternum = 0
+  # Start iteration
+  while notConverge
+    p = 2*AtA*x - 2*Atb
+	for kk = 1:K
+	  x[kk,1] = x[kk,1] * exp(-etat*p[kk,1])
+	end
+	x = x / norm(x,1)
+	pprime = 2*AtA*x - 2*Atb
+	valarray = ((pprime-ones(K,1)*minimum(pprime)))'*x
+	val = valarray[1,1]
+	if  val < epsilon
+	  notConverge = false
+	end
+	iternum = iternum+1
+	if iternum == maxiter
+	  notConverge = false
+	end
+	etat = etat * 0.99
+  end
+  x, iternum
   # END TASK
 end
 
@@ -306,12 +334,12 @@ function compute_A(Qn, s, p)
     Atb = reshape(AtB[:,i], (nt,))
 
     # Version 1: Exponentiated gradient
-    #(ci, maxiter) = simplex_nnls_eg(AtA,Atb)
-    #alliter = alliter + maxiter
+    (ci, maxiter) = simplex_nnls_eg(AtA,Atb)
+    alliter = alliter + maxiter
 
     # Version 2: Warm-started active-set iteration
-    ci = proj_simplex(AtA\Atb)
-    (ci, maxiter) = simplex_nnls_as(AtA, Atb, ci)
+    #ci = proj_simplex(AtA\Atb)
+    #(ci, maxiter) = simplex_nnls_as(AtA, Atb, ci)
 
     alliter = alliter + maxiter
     C[i,:] = ci' .* s[i]
