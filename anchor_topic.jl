@@ -138,12 +138,12 @@ function simplex_nnls_eg(AtA, Atb, x=[], maxiter=500)
   iternum = 0
   # Start iteration
   while notConverge
-    p = 2*AtA*x - 2*Atb
+    p = 2*matvec(AtA,x) - 2*Atb
 	for kk = 1:K
 	  x[kk,1] = x[kk,1] * exp(-etat*p[kk,1])
 	end
 	x = x / norm(x,1)
-	pprime = 2*AtA*x - 2*Atb
+	pprime = 2*matvec(AtA,x) - 2*Atb
 	valarray = ((pprime-ones(K,1)*minimum(pprime)))'*x
 	val = valarray[1,1]
 	if  val < epsilon
@@ -159,6 +159,29 @@ function simplex_nnls_eg(AtA, Atb, x=[], maxiter=500)
   # END TASK
 end
 
+# Do the Matrix-Vector multiplication in a cache-friendly way
+
+function matvec(AtA, x)
+  # BEGIN TASK
+
+  # Number of rows and cols of AtA
+  nRows, nCols = size(AtA)
+
+  # The result vector
+  r = Array(Float64, nRows)
+
+  for i = 1:nRows
+    r[i,1] = 0
+  end
+
+  for j = 1:nCols, i = 1:nRows
+    r[i,1] += AtA[i,j] * x[j,1]
+  end
+
+  r
+
+  # END TASK
+end
 
 ##
 # Active set algorithm
