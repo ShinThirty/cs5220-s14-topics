@@ -335,7 +335,6 @@ function compute_A(Qn, s, p)
 
     # Version 1: Exponentiated gradient
     (ci, maxiter) = simplex_nnls_eg(AtA,Atb)
-    alliter = alliter + maxiter
 
     # Version 2: Warm-started active-set iteration
     #ci = proj_simplex(AtA\Atb)

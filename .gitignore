@@ -1,3 +1,13 @@
 anchor_topic.md
 anchor_topic.pdf
 topics*.txt
+uci/docword.enron.txt.gz
+uci/docword.kos.txt.gz
+uci/docword.nips.txt.gz
+uci/docword.nytimes.txt.gz
+uci/vocab.enron.txt
+uci/vocab.kos.txt
+uci/vocab.nips.txt
+uci/vocab.nytimes.txt
+csub*
+ompsub*

@@ -16,6 +16,8 @@ clean:
 
 realclean: clean
 	rm -f topics*.txt
+	rm -f csub*
+	rm -f ompsub*
 
 fetch_kos:
 	( cd uci ; wget $(UCI)/docword.kos.txt.gz )
