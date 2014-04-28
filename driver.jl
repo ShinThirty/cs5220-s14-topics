@@ -1,8 +1,10 @@
 # -- Driver for the anchor words
 
-@profile begin
+# @profile begin
 
 include("anchor_topic.jl")
+
+# @everywhere include("anchor_topic.jl")
 
 # Load the data
 words = readcsv("yelp/words.csv")
@@ -14,4 +16,4 @@ Q = readcsv("yelp/Q.csv")
 # Write the results files
 write_topics("topics.txt", words, p, r, A, TW)
 
-end
+# end

@@ -126,7 +126,7 @@ end
 #
 # [3]: http://dx.doi.org/10.1006/inco.1996.2612
 
-function simplex_nnls_eg(AtA, Atb, x=[], maxiter=500)
+@everywhere function simplex_nnls_eg(AtA, Atb, x=[], maxiter=500)
   # BEGIN TASK
   # Parameter specification
   etat = 1000
@@ -161,7 +161,7 @@ end
 
 # Do the Matrix-Vector multiplication in a cache-friendly way
 
-function matvec(AtA, x)
+@everywhere function matvec(AtA, x)
   # BEGIN TASK
 
   # Number of rows and cols of AtA
@@ -353,16 +353,27 @@ function compute_A(Qn, s, p)
   maxerr1 = 0.0
   maxerr2 = 0.0
   alliter = 0
+  
+  refs={}
   for i = 1:nw
     Atb = reshape(AtB[:,i], (nt,))
 
     # Version 1: Exponentiated gradient
-    (ci, maxiter) = simplex_nnls_eg(AtA,Atb)
+    # (ci, maxiter) = simplex_nnls_eg(AtA,Atb)
+	sss = @spawn simplex_nnls_eg(AtA,Atb)
+	refs=vcat(refs,sss)
+  end
 
     # Version 2: Warm-started active-set iteration
     #ci = proj_simplex(AtA\Atb)
     #(ci, maxiter) = simplex_nnls_as(AtA, Atb, ci)
-
+	
+  for i = 1:nw
+    # println(refs[i])
+    result=fetch(refs[i])
+	# println(result)
+	ci=result[1]
+	maxiter=result[2]
     alliter = alliter + maxiter
     C[i,:] = ci' .* s[i]
 
@@ -370,6 +381,7 @@ function compute_A(Qn, s, p)
     maxerr1 = max(maxerr1, abs(sum(ci)-1))
     
     # Check error measure used in EG convergence
+	Atb = reshape(AtB[:,i], (nt,))
     r = AtA*ci-Atb
     phi = 2*(r.-minimum(r))'*ci
     maxerr2 = max(maxerr2, phi[1])
